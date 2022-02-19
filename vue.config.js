@@ -1,10 +1,25 @@
 const { defineConfig } = require('@vue/cli-service')
+const path = require("path");
 const isProd = process.env.NODE_ENV === 'production' || process.env.BABEL_ENV === 'production' || process.env.BABEL_ENV === 'test'
+
+
+function resolve(dir) {
+  return path.join(__dirname, dir);
+}
 
 module.exports = defineConfig({
   transpileDependencies: true,
   // 打包输出路径
   outputDir: 'dist/web',
+
+  chainWebpack: (config) => {
+    console.log('fallback ', config.resolve.fallback);
+    config.resolve.alias
+      .set('@$', resolve('src'))
+      .set('@assets', resolve('src/assets'))
+      .set('@comp', resolve('src/components'));
+  },
+
   css: {
     // 是否使用css分离插件 ExtractTextPlugin
     // extract: isProd,
