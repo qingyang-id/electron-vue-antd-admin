@@ -13,7 +13,6 @@ module.exports = defineConfig({
   outputDir: 'dist/web',
 
   chainWebpack: (config) => {
-    console.log('alias ', config.resolve.alias);
     config.resolve.alias
       .set('@$', resolve('src'))
       .set('@api', resolve('src/api'))
