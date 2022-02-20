@@ -13,11 +13,14 @@ module.exports = defineConfig({
   outputDir: 'dist/web',
 
   chainWebpack: (config) => {
-    console.log('fallback ', config.resolve.fallback);
+    console.log('alias ', config.resolve.alias);
     config.resolve.alias
       .set('@$', resolve('src'))
+      .set('@api', resolve('src/api'))
       .set('@assets', resolve('src/assets'))
-      .set('@comp', resolve('src/components'));
+      .set('@comp', resolve('src/components'))
+      .set('@config', resolve('src/config'))
+      .set('@views', resolve('src/views'));
   },
 
   css: {
