@@ -1,7 +1,10 @@
-const { defineConfig } = require('@vue/cli-service')
-const path = require("path");
-const isProd = process.env.NODE_ENV === 'production' || process.env.BABEL_ENV === 'production' || process.env.BABEL_ENV === 'test'
+const { defineConfig } = require('@vue/cli-service');
+const path = require('path');
 
+const isProd = process.env.NODE_ENV === 'production' || process.env.BABEL_ENV === 'production';
+console.log('isProd', isProd, process.env, process.argv);
+
+const appSuffix = isProd ? '' : '-test';
 
 function resolve(dir) {
   return path.join(__dirname, dir);
@@ -34,11 +37,31 @@ module.exports = defineConfig({
           /* less 变量覆盖，用于自定义 ant design 主题 */
           'primary-color': '#1890FF',
           'link-color': '#1890FF',
-          'border-radius-base': '4px'
+          'border-radius-base': '4px',
         },
-        javascriptEnabled: true
-      }
-    }
+        javascriptEnabled: true,
+      },
+    },
+  },
+
+  devServer: {
+    open: !process.argv.includes('electron:serve'),
+    port: 3000,
+    proxy: {
+      /* '/api': {
+         target: 'https://mock.ihx.me/mock/5baf3052f7da7e07e04a5116/antd-pro', //mock API接口系统
+         ws: false,
+         changeOrigin: true,
+         pathRewrite: {
+           '/jeecg-boot': ''  //默认所有请求都加了jeecg-boot前缀，需要去掉
+         }
+       }, */
+      '/portal': {
+        target: 'http://localhost:8080', // 请求本地 需要jeecg-boot后台项目
+        ws: false,
+        changeOrigin: true,
+      },
+    },
   },
 
   // 第三方插件配置
@@ -84,10 +107,10 @@ module.exports = defineConfig({
         //   target: 'AppImage'
         // },
         mac: {
-          icon: 'build/electron-icon/icon.icns'
+          icon: 'build/electron-icon/icon.icns',
         },
-        productName: 'erp-admin', // 项目名称 打包生成exe的前缀名
-        appId: 'com.qing.yang.erp', // 包名
+        productName: `erp-admin${appSuffix}`, // 项目名称 打包生成exe的前缀名
+        appId: `com.qing.yang.erp${appSuffix}`, // 包名
         copyright: 'Copyright © 2023 QingYang', // 版权
         compression: 'maximum', // store|normal|maximum 打包压缩情况(store速度较快)
         // eslint-disable-next-line
@@ -96,6 +119,7 @@ module.exports = defineConfig({
         files: ['**/*'],
         // files: ['dist/electron/**/*'],
         nsis: {
+          // eslint-disable-next-line max-len
           // 是否一键安装，建议为 false，可以让用户点击下一步、下一步、下一步的形式安装程序，如果为true，当用户双击构建好的程序，自动安装程序并打开，即：一键安装（one-click installer）
           oneClick: false,
           // 允许请求提升。 如果为false，则用户必须使用提升的权限重新启动安装程序。
@@ -111,27 +135,29 @@ module.exports = defineConfig({
           // 创建桌面图标
           createDesktopShortcut: true,
           // 创建开始菜单图标
-          createStartMenuShortcut: true
+          createStartMenuShortcut: true,
           // 桌面快捷键图标名称
           // shortcutName: 'erp-admin'
-        }
+        },
       },
       chainWebpackMainProcess: (config) => {
         config.plugin('define').tap((args) => {
-          args[0].IS_ELECTRON = true
-          return args
-        })
+          // eslint-disable-next-line no-param-reassign
+          args[0].IS_ELECTRON = true;
+          return args;
+        });
       },
       chainWebpackRendererProcess: (config) => {
         config.plugin('define').tap((args) => {
-          args[0].IS_ELECTRON = true
-          return args
-        })
+          // eslint-disable-next-line no-param-reassign
+          args[0].IS_ELECTRON = true;
+          return args;
+        });
       },
       outputDir: 'dist/electron',
       mainProcessFile: 'electron/main/index.dev.js', // 主进程入口文件
       // rendererProcessFile: 'src/main.js', // 渲染进程入口文件
-      mainProcessWatch: ['electron/main'] // 检测主进程文件在更改时将重新编译主进程并重新启动
-    }
-  }
-})
+      mainProcessWatch: ['electron/main'], // 检测主进程文件在更改时将重新编译主进程并重新启动
+    },
+  },
+});
